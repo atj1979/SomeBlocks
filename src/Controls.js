@@ -7,7 +7,8 @@ class Controls extends Component {
   render() {
     return (
       <a-entity>
-        {/* <a-entity vive-controls oculus-touch-controls windows-motion-controls> */}
+        <a-entity id="leftHand" hand-controls="left"></a-entity>
+        <a-entity id="rightHand" hand-controls="right"></a-entity>
       </ a-entity>
     );
   }

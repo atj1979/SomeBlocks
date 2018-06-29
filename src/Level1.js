@@ -1,8 +1,6 @@
 import AFRAME from 'aframe';
 import React, { Component } from 'react';
 
-
-
 class Level1 extends Component {
   constructor(props) {
     super(props)
@@ -25,15 +23,16 @@ class Level1 extends Component {
     var boxestoAdd = this.getThisManyBoxes(this.maxBoxes);
     return (
       <React.Fragment>
-        { boxestoAdd }        
+        <a-entity falling-boxes-controller >
+        {boxestoAdd}
+        </ a-entity >
+
       </ React.Fragment>
     );
   }
 }
 
 export default Level1;
-
-
 
 function getBoxWithStartingPosition(startingPositionVec3){
     if (!startingPositionVec3){
@@ -51,37 +50,57 @@ function getBoxWithStartingPosition(startingPositionVec3){
     />);  
 }
 
-
-AFRAME.registerSystem('fallingBoxes', {
-  init: function () {
+var fallingBoxesControllerString = 'falling-boxes-controller';
+AFRAME.registerComponent(fallingBoxesControllerString, {
+  schema: {
+    boxes: {type:'array'}
+  },
+  defaultHeight:15,
+  init () {
     this.allBoxes = [];
-    this.activeBoxes = [];
     this.inactiveBoxes = [];
+    for(var i =0; i < this.el.children.length; i++){
+      this.registerMe(this.el.children[i]);
+    }
   },
 
-  registerMe: function (el) {
+  registerMe (el) {
     this.allBoxes.push(el);
+    this.inactiveBoxes.push(el);
+    el.object3D.visible = false;
   },
 
-  unregisterMe: function (el) {
+  unregisterMe (el) {
     var index = this.allBoxes.indexOf(el);
     this.allBoxes.splice(index, 1);
   },
-  tick:'',
-  play:'',
-  pause:''
-
-
-});
-
-AFRAME.registerComponent('fallingBoxes', {
-  init: function () {
-    this.system.registerMe(this.el);
+  dropBox(){
+    var box = this.inactiveBoxes.pop();
+    box.object3D.visible = true;
+    box.object3D.position.set(Math.random() * 4, this.defaultHeight, Math.random() * 4);
+    box.setAttribute('dynamic-body', '');
   },
+  resetBoxesThatAreInactive(){
+    this.allBoxes.forEach(function(box) {
+      if (box.object3D.position.y < -5){
+        box.removeAttribute('dynamic-body'); // Romove physics calculations
+        box.object3D.position.setY(15);
+        box.object3D.visible = false;
+      }
+    });
+  },
+  tick (time, timeDelta) {
+    this.resetBoxesThatAreInactive();
+  },
+  play(){
+    window.setInterval(this.dropBox.bind(this),1000)
+  },
+  pause:() => {}
 
-  remove: function () {
-    this.system.unregisterMe(this.el);
-  }
+
 });
+
+
+
 
 // Boxes Should fall on a timer - be hittable by a stick  

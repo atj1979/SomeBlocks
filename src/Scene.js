@@ -9,7 +9,7 @@ import Level1 from './Level1';
 class Scene extends Component {
   render() {
     return (
-      <a-scene physics="debug: true;" stats>
+      <a-scene physics="debug: false;" stats>
         <a-plane color="blue" height="100" width="100" rotation="-90 0 0"></a-plane>
         <Controls />
         <Level1 />
